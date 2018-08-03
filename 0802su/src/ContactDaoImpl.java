@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContactDaoImpl implements ContactDao {
@@ -184,14 +185,65 @@ public class ContactDaoImpl implements ContactDao {
 
 	@Override
 	public List<Contact> allContact() {
-		// TODO Auto-generated method stub
-		return null;
+		//앍어론 데이터를 저장히기 위한 리스트 생성
+		List<Contact> list = new ArrayList<Contact>();
+		connect();
+		try {
+			//contact 테이블에 있는 전체 데이터를 가져오는 SQL 실행 객체를 생성합니다.
+		pstmt = con.prepareStatement("select num,name,phone,email,birthday from contact");
+		//select 구문 실행
+		rs = pstmt.executeQuery(); // 출발점을 만들고 밑에서 한발짝 나가서 데이터를 행으로 읽어라하는 구문
+		//리스트에 저장하기 위해서  바복문을 이용해서 테이블을 읽어서 List에 저장
+		while(rs.next()) {
+			Contact contact = new Contact();
+			contact.setNum(rs.getInt("num"));
+			contact.setName(rs.getString("name"));
+			contact.setPhone(rs.getString("phone"));
+			contact.setEmail(rs.getString("email"));
+			contact.setBirthday(rs.getDate("birthday"));
+			//읽은 데이터를 리스트에 저장
+			list.add(contact);
+		}
+		
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		
+		close();
+		return list;
 	}
-
+	//name 컬럼에 매개변수로 주어진 데이터가 포함된 데이터를 조회
 	@Override
 	public List<Contact> allContact(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Contact> list = new ArrayList<>();
+		connect();
+		
+		//contact 테이블의 name 컬럼에 name의 값이 포함된 데이터를 조회하는 Sql 만들기
+		try {
+		pstmt = con.prepareStatement("select num,name,phone,email,birthday from Contact where upper(name) like ?");
+		//물음표에 데이터 바인딩 하기
+		pstmt.setString(1,"%" + name + "%");
+		rs = pstmt.executeQuery();
+		while(rs.next()) {
+			Contact contact = new Contact();
+			contact.setNum(rs.getInt("num"));
+			contact.setName(rs.getString("name"));
+			contact.setPhone(rs.getString("phone"));
+			contact.setEmail(rs.getString("email"));
+			contact.setBirthday(rs.getDate("birthday"));
+			//읽은 데이터를 리스트에 저장
+			list.add(contact);
+		
+		}
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		
+		close();
+		return list;
 	}
 
 }
